@@ -1,0 +1,51 @@
+# =========================
+# Maven build
+# =========================
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
+
+# =========================
+# IDEs & Editors
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.class
+*.log
+*.swp
+*.swo
+*~
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Spring Boot specific
+# =========================
+application-local.properties
+application-dev.properties
+application-test.properties
+application-*.yml
+*.h2.db
+*.mv.db
+
+# =========================
+# Logs and temp
+# =========================
+*.log
+logs/
+*.tmp
+*.bak
+
+# =========================
+# Environment & secrets
+# =========================
+.env
+*.env
