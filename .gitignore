@@ -1,0 +1,14 @@
+# Java / Spring Boot
+backend/target/
+*.log
+*.class
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+
+# OS / IDE
+*.iml
+.idea/
+.vscode/
+.DS_Store
