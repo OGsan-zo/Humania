@@ -12,3 +12,7 @@ frontend/dist/
 .idea/
 .vscode/
 .DS_Store
+
+# Prompt 
+_docs/prompt/
+database/sql/origin/
