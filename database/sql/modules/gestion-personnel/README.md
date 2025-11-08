@@ -10,6 +10,12 @@ Tables de référence pour la normalisation :
 - `ref_situation_familiale` - Situations familiales (célibataire, marié, etc.)
 - `ref_type_note` - Types de notes RH (observation, avertissement, etc.)
 - `ref_banques` - Liste des banques de Madagascar
+- `ref_statut_poste` - Statuts des postes (actif, inactif)
+- `ref_type_compte` - Types de comptes bancaires (courant, épargne)
+- `ref_statut_compte` - Statuts des comptes (actif, inactif, clôturé)
+- `ref_type_affectation` - Types d'affectation (permanent, intérim, mission)
+- `ref_type_mouvement` - Types de mouvements (promotion, mutation, etc.)
+- `ref_statut_document` - Statuts des documents (valide, expiré, en attente)
 
 ### 1-TABLE.sql
 Création de toutes les tables du module :
@@ -41,6 +47,12 @@ Données de référence initiales :
 - Situations familiales (6 types)
 - Types de notes RH (6 types)
 - Banques de Madagascar (8 banques)
+- Statuts des postes (2 types)
+- Types de comptes bancaires (2 types)
+- Statuts des comptes (3 types)
+- Types d'affectation (3 types)
+- Types de mouvements (4 types)
+- Statuts des documents (3 types)
 - Types de documents RH (10 types)
 
 ## Ordre d'exécution
@@ -75,9 +87,11 @@ Ce module nécessite les tables existantes suivantes :
 - ✅ Contacts d'urgence
 - ✅ Notes et observations RH
 - ✅ Alertes automatiques pour documents expirés
-- ✅ Normalisation avec tables de référence (performance optimisée)
+- ✅ Normalisation complète avec tables de référence (performance optimisée)
+- ✅ Tous les statuts en INT pour des filtres rapides
 - ✅ Gestion des comptes bancaires
 - ✅ Gestion des CIN avec détails complets
+- ✅ Triggers automatiques pour l'historique et les statuts
 
 ## Avantages de la normalisation
 
@@ -85,3 +99,5 @@ Ce module nécessite les tables existantes suivantes :
 - 🎯 **Intégrité** : Données de référence centralisées
 - 🔧 **Maintenance** : Modification facile des libellés
 - ✅ **Cohérence** : Pas de fautes de frappe ou variations
+- 📊 **Filtres optimisés** : Tous les statuts en INT pour des filtres rapides
+- 🛡️ **Extensibilité** : Ajout facile de nouveaux statuts sans modifier la structure
