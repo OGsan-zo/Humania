@@ -1,0 +1,268 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header / Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <a routerLink="/dashboard" class="text-2xl font-bold text-indigo-600 hover:text-indigo-700">Humania</a>
+          <span class="text-gray-400">|</span>
+          <span class="text-gray-600">Détails Contrat</span>
+        </div>
+        <button (click)="goBack()" class="text-gray-600 hover:text-gray-900">
+          ← Retour à la liste
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !errorMessage && contrat" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Alerte Expiration -->
+    <div *ngIf="contrat.joursAvantExpiration !== undefined && contrat.joursAvantExpiration <= 30 && contrat.joursAvantExpiration > 0" 
+         class="mb-6 p-4 rounded-lg border-l-4"
+         [ngClass]="contrat.joursAvantExpiration <= 7 ? 'bg-red-50 border-red-500' : 'bg-orange-50 border-orange-500'">
+      <div class="flex items-center">
+        <svg class="w-6 h-6 mr-3" [ngClass]="contrat.joursAvantExpiration <= 7 ? 'text-red-600' : 'text-orange-600'" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <div>
+          <p class="font-semibold" [ngClass]="contrat.joursAvantExpiration <= 7 ? 'text-red-800' : 'text-orange-800'">
+            {{ getAlerteMessage(contrat.joursAvantExpiration) }}
+          </p>
+          <p class="text-sm mt-1" [ngClass]="contrat.joursAvantExpiration <= 7 ? 'text-red-700' : 'text-orange-700'">
+            Action requise : Préparer le renouvellement ou la fin du contrat
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contrat Header Card -->
+    <div class="bg-white rounded-lg shadow-sm border-4 p-6 mb-6" [ngClass]="getAlerteClass(contrat.joursAvantExpiration)">
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-start space-x-4">
+          <!-- Photo employé -->
+          <img 
+            [src]="contrat.employePhoto || 'https://ui-avatars.com/api/?name=' + contrat.employePrenom + '+' + contrat.employeNom + '&size=200'" 
+            [alt]="contrat.employePrenom + ' ' + contrat.employeNom"
+            class="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+          />
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ contrat.numeroContrat }}</h1>
+            <button 
+              (click)="viewEmployeDetails()"
+              class="text-lg text-indigo-600 hover:text-indigo-800 font-medium mt-1">
+              {{ contrat.employePrenom }} {{ contrat.employeNom }} ({{ contrat.employeMatricule }}) →
+            </button>
+            <p class="text-sm text-gray-500 mt-2">
+              Signé le {{ contrat.dateSignature | date:'dd/MM/yyyy' }} à {{ contrat.lieuSignature }}
+            </p>
+          </div>
+        </div>
+        <span [ngClass]="getStatutClass(contrat.statut)" class="px-4 py-2 text-sm font-semibold rounded-full">
+          {{ contrat.statut }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div>
+          <p class="text-sm text-gray-500">Type de contrat</p>
+          <p class="text-base font-semibold text-gray-900 mt-1">{{ contrat.typeContrat }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Date de début</p>
+          <p class="text-base font-semibold text-gray-900 mt-1">{{ contrat.dateDebut | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Date de fin</p>
+          <p class="text-base font-semibold text-gray-900 mt-1">
+            {{ contrat.dateFin ? (contrat.dateFin | date:'dd/MM/yyyy') : 'Indéterminée' }}
+          </p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-500">Durée</p>
+          <p class="text-base font-semibold text-gray-900 mt-1">
+            {{ contrat.duree ? contrat.duree + ' mois' : 'Indéterminée' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations détaillées -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      
+      <!-- Rémunération -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Rémunération</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-gray-500">Salaire de base</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ formatCurrency(contrat.salaireBase) }}</p>
+          </div>
+
+          <div *ngIf="contrat.primes">
+            <p class="text-sm text-gray-500">Primes mensuelles</p>
+            <p class="text-lg font-semibold text-green-600 mt-1">{{ formatCurrency(contrat.primes) }}</p>
+          </div>
+
+          <div class="pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-500">Rémunération totale</p>
+            <p class="text-xl font-bold text-indigo-600 mt-1">
+              {{ formatCurrency((contrat.salaireBase || 0) + (contrat.primes || 0)) }}
+            </p>
+          </div>
+
+          <div *ngIf="contrat.avantages" class="pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-500 mb-2">Avantages</p>
+            <p class="text-sm text-gray-700">{{ contrat.avantages }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails du contrat -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 Détails du contrat</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-gray-500">Période d'essai</p>
+            <p class="text-base text-gray-900 mt-1">
+              {{ contrat.periodeEssai ? contrat.periodeEssai + ' mois' : 'Aucune' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-sm text-gray-500">Nombre de renouvellements</p>
+            <p class="text-base text-gray-900 mt-1">{{ contrat.nombreRenouvellements }}</p>
+          </div>
+
+          <div>
+            <p class="text-sm text-gray-500">Durée effective</p>
+            <p class="text-base text-gray-900 mt-1">{{ calculateDuration(contrat.dateDebut, contrat.dateFin) }}</p>
+          </div>
+
+          <div *ngIf="contrat.clauseParticuliere" class="pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-500 mb-2">Clause particulière</p>
+            <p class="text-sm text-gray-700 italic">{{ contrat.clauseParticuliere }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affiliations sociales -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">🏥 Affiliations sociales</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-gray-500">Numéro CNAPS</p>
+            <p class="text-base font-mono text-gray-900 mt-1">{{ contrat.numeroCnaps || '-' }}</p>
+          </div>
+
+          <div>
+            <p class="text-sm text-gray-500">Numéro OSTIE</p>
+            <p class="text-base font-mono text-gray-900 mt-1">{{ contrat.numeroOstie || '-' }}</p>
+          </div>
+
+          <div class="pt-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">
+              Les cotisations sociales sont prélevées mensuellement selon la réglementation en vigueur.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clauses contractuelles -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">📜 Clauses contractuelles</h3>
+      
+      <div class="space-y-3">
+        <div *ngFor="let clause of clauses" 
+             [ngClass]="getClauseClass(clause.type)"
+             class="border rounded-lg p-4">
+          <div class="flex items-start space-x-3">
+            <span class="text-2xl">{{ getClauseIcon(clause.type) }}</span>
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900">{{ clause.titre }}</h4>
+              <p class="text-sm text-gray-700 mt-2">{{ clause.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historique des renouvellements -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">🔄 Historique des renouvellements</h3>
+      
+      <div *ngIf="renouvellements.length === 0" class="text-center py-8 text-gray-500">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-lg font-medium">Aucun renouvellement</p>
+        <p class="text-sm mt-1">Ce contrat n'a pas encore été renouvelé</p>
+      </div>
+
+      <div *ngIf="renouvellements.length > 0" class="space-y-4">
+        <div *ngFor="let renouvellement of renouvellements; let i = index" class="relative">
+          <!-- Timeline line -->
+          <div *ngIf="i < renouvellements.length - 1" class="absolute left-4 top-12 bottom-0 w-0.5 bg-gray-300"></div>
+          
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              {{ i + 1 }}
+            </div>
+            <div class="flex-1 border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-gray-900">{{ renouvellement.numeroAvenant }}</h4>
+                <span class="text-xs text-gray-500">{{ renouvellement.dateRenouvellement | date:'dd/MM/yyyy' }}</span>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p class="text-gray-500">Ancienne date de fin</p>
+                  <p class="text-gray-900">{{ renouvellement.ancienneDateFin | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Nouvelle date de fin</p>
+                  <p class="text-gray-900 font-semibold">{{ renouvellement.nouvelleDateFin | date:'dd/MM/yyyy' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-500">Nouvelle durée</p>
+                  <p class="text-gray-900">{{ renouvellement.nouvelleDuree }} mois</p>
+                </div>
+                <div *ngIf="renouvellement.nouveauSalaire">
+                  <p class="text-gray-500">Nouveau salaire</p>
+                  <p class="text-gray-900 font-semibold">{{ formatCurrency(renouvellement.nouveauSalaire) }}</p>
+                </div>
+              </div>
+              
+              <div *ngIf="renouvellement.motif" class="mt-3 pt-3 border-t border-gray-200">
+                <p class="text-xs text-gray-500">Motif</p>
+                <p class="text-sm text-gray-700 italic">{{ renouvellement.motif }}</p>
+              </div>
+              
+              <div *ngIf="renouvellement.validePar" class="mt-2">
+                <p class="text-xs text-gray-500">Validé par : <span class="text-gray-700">{{ renouvellement.validePar }}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

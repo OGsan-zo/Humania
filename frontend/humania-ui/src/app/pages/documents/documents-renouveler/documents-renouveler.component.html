@@ -1,0 +1,251 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header / Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <a routerLink="/dashboard" class="text-2xl font-bold text-indigo-600 hover:text-indigo-700">Humania</a>
+          <span class="text-gray-400">|</span>
+          <span class="text-gray-600">Documents à Renouveler</span>
+        </div>
+        <a routerLink="/dashboard" class="text-gray-600 hover:text-gray-900">
+          ← Retour au tableau de bord
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Documents à Renouveler</h1>
+      <p class="mt-2 text-gray-600">Gérez les documents expirés ou arrivant à expiration</p>
+    </div>
+
+    <!-- Alertes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <!-- Alerte Documents Expirés -->
+      <div *ngIf="countDocumentsExpires() > 0" class="bg-red-50 border-l-4 border-red-500 p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">
+              <span class="font-medium">{{ countDocumentsExpires() }} document(s) expiré(s)</span> - Action immédiate requise
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerte Documents Urgents -->
+      <div *ngIf="countDocumentsUrgents() > 0" class="bg-orange-50 border-l-4 border-orange-400 p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-orange-700">
+              <span class="font-medium">{{ countDocumentsUrgents() }} document(s) urgent(s)</span> - Expire dans ≤ 7 jours
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres de recherche</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Employé, type document, numéro..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type de document</label>
+          <select
+            [(ngModel)]="selectedType"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="Certificat Médical">Certificat Médical</option>
+            <option value="Permis de Conduire">Permis de Conduire</option>
+            <option value="Certificat de Travail">Certificat de Travail</option>
+            <option value="Attestation Formation">Attestation Formation</option>
+            <option value="Casier Judiciaire">Casier Judiciaire</option>
+            <option value="Attestation Assurance">Attestation Assurance</option>
+          </select>
+        </div>
+
+        <!-- Statut Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="selectedStatut"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="expire">Expiré</option>
+            <option value="a_renouveler">À renouveler</option>
+            <option value="en_attente">En attente</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <!-- Urgent Checkbox -->
+        <div class="flex items-center">
+          <input
+            id="urgent-only"
+            type="checkbox"
+            [(ngModel)]="showUrgentOnly"
+            (ngModelChange)="applyFilters()"
+            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label for="urgent-only" class="ml-2 block text-sm text-gray-700">
+            Afficher uniquement les documents urgents (≤ 7 jours)
+          </label>
+        </div>
+
+        <!-- Reset Button -->
+        <button
+          (click)="resetFilters()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Réinitialiser les filtres
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="mb-4 text-sm text-gray-600">
+      <span class="font-semibold">{{ filteredDocuments.length }}</span> document(s) trouvé(s)
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Documents Grid -->
+    <div *ngIf="!isLoading && !errorMessage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let doc of filteredDocuments" 
+           [ngClass]="getUrgenceClass(doc.joursAvantExpiration)"
+           class="bg-white rounded-lg shadow-sm border-2 hover:shadow-md transition-shadow p-6">
+        
+        <!-- Urgence Badge -->
+        <div class="flex items-center justify-between mb-4">
+          <span [ngClass]="getStatutClass(doc.statut)" class="px-2 py-1 text-xs font-semibold rounded-full">
+            {{ doc.statut === 'a_renouveler' ? 'À renouveler' : doc.statut }}
+          </span>
+          <span *ngIf="getUrgenceIcon(doc.joursAvantExpiration)" class="text-2xl">
+            {{ getUrgenceIcon(doc.joursAvantExpiration) }}
+          </span>
+        </div>
+
+        <!-- Document Icon & Type -->
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="flex-shrink-0">
+            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900">{{ doc.typeDocument }}</h3>
+            <p class="text-sm text-gray-500">{{ doc.numeroDocument }}</p>
+          </div>
+        </div>
+
+        <!-- Employé -->
+        <div class="mb-4 pb-4 border-b border-gray-200">
+          <p class="text-xs text-gray-500 mb-1">Employé</p>
+          <button 
+            (click)="viewEmployeDetails(doc.employeId)"
+            class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            {{ doc.employePrenom }} {{ doc.employeNom }} ({{ doc.employeMatricule }}) →
+          </button>
+        </div>
+
+        <!-- Dates -->
+        <div class="space-y-2 mb-4">
+          <div>
+            <p class="text-xs text-gray-500">Date d'émission</p>
+            <p class="text-sm text-gray-900">{{ doc.dateEmission | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Date d'expiration</p>
+            <p class="text-sm font-semibold" 
+               [ngClass]="doc.joursAvantExpiration !== undefined && doc.joursAvantExpiration < 0 ? 'text-red-600' : 
+                          doc.joursAvantExpiration !== undefined && doc.joursAvantExpiration <= 7 ? 'text-orange-600' : 'text-gray-900'">
+              {{ doc.dateExpiration | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Jours restants -->
+        <div *ngIf="doc.joursAvantExpiration !== undefined" 
+             class="p-3 rounded-lg mb-4"
+             [ngClass]="doc.joursAvantExpiration < 0 ? 'bg-red-100' : 
+                        doc.joursAvantExpiration <= 7 ? 'bg-orange-100' : 'bg-yellow-100'">
+          <p class="text-sm font-semibold text-center"
+             [ngClass]="doc.joursAvantExpiration < 0 ? 'text-red-800' : 
+                        doc.joursAvantExpiration <= 7 ? 'text-orange-800' : 'text-yellow-800'">
+            <span *ngIf="doc.joursAvantExpiration < 0">
+              Expiré depuis {{ -doc.joursAvantExpiration }} jour(s)
+            </span>
+            <span *ngIf="doc.joursAvantExpiration >= 0">
+              Expire dans {{ doc.joursAvantExpiration }} jour(s)
+            </span>
+          </p>
+        </div>
+
+        <!-- Remarques -->
+        <div *ngIf="doc.remarques" class="mb-4">
+          <p class="text-xs text-gray-500 mb-1">Remarques</p>
+          <p class="text-sm text-gray-700 italic">{{ doc.remarques }}</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex space-x-2">
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">
+            Télécharger
+          </button>
+          <button class="flex-1 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+            Renouveler
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredDocuments.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document trouvé</h3>
+      <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
+    </div>
+  </div>
+</div>

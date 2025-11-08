@@ -1,0 +1,205 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header / Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <a routerLink="/dashboard" class="text-2xl font-bold text-indigo-600 hover:text-indigo-700">Humania</a>
+          <span class="text-gray-400">|</span>
+          <span class="text-gray-600">Gestion des Postes</span>
+        </div>
+        <a routerLink="/dashboard" class="text-gray-600 hover:text-gray-900">
+          ← Retour au tableau de bord
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Liste des Postes</h1>
+      <p class="mt-2 text-gray-600">Gérez et consultez tous les postes de l'entreprise</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres de recherche</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Intitulé, code, description..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <!-- Departement Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Département</label>
+          <select
+            [(ngModel)]="selectedDepartement"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="Informatique">Informatique</option>
+            <option value="Gestion de Projet">Gestion de Projet</option>
+            <option value="Finance">Finance</option>
+            <option value="Design">Design</option>
+            <option value="Ressources Humaines">Ressources Humaines</option>
+          </select>
+        </div>
+
+        <!-- Statut Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="selectedStatut"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="vacant">Vacant</option>
+            <option value="suspendu">Suspendu</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+        <!-- Niveau Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Niveau hiérarchique</label>
+          <select
+            [(ngModel)]="selectedNiveau"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="1">Opérationnel</option>
+            <option value="2">Superviseur</option>
+            <option value="3">Manager</option>
+            <option value="4">Directeur</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="md:col-span-3 flex items-end justify-end">
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="mb-4 text-sm text-gray-600">
+      <span class="font-semibold">{{ filteredPostes.length }}</span> poste(s) trouvé(s)
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Cards Grid -->
+    <div *ngIf="!isLoading && !errorMessage" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let poste of filteredPostes" class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <!-- Header -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-gray-900">{{ poste.intitule }}</h3>
+              <p class="text-sm text-gray-500 mt-1">{{ poste.code }}</p>
+            </div>
+            <span [ngClass]="getStatutClass(poste.statut)" class="px-2 py-1 text-xs font-semibold rounded-full">
+              {{ poste.statut }}
+            </span>
+          </div>
+
+          <!-- Department & Level -->
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              {{ poste.departement }}
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              {{ getNiveauLabel(poste.niveauHierarchique) }}
+            </div>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+              {{ poste.nombreEmployes }} employé(s)
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p *ngIf="poste.description" class="text-sm text-gray-600 mb-4 line-clamp-2">
+            {{ poste.description }}
+          </p>
+
+          <!-- Salary Range -->
+          <div class="bg-gray-50 rounded-lg p-3 mb-4">
+            <p class="text-xs text-gray-500 mb-1">Fourchette salariale</p>
+            <p class="text-sm font-semibold text-gray-900">
+              {{ formatCurrency(poste.salaireMin) }} - {{ formatCurrency(poste.salaireMax) }}
+            </p>
+          </div>
+
+          <!-- Competences -->
+          <div *ngIf="poste.competencesRequises" class="mb-4">
+            <p class="text-xs text-gray-500 mb-2">Compétences requises</p>
+            <div class="flex flex-wrap gap-1">
+              <span *ngFor="let comp of poste.competencesRequises.split(',').slice(0, 3)" 
+                    class="px-2 py-1 text-xs bg-indigo-50 text-indigo-700 rounded">
+                {{ comp.trim() }}
+              </span>
+              <span *ngIf="poste.competencesRequises.split(',').length > 3" 
+                    class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                +{{ poste.competencesRequises.split(',').length - 3 }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button
+            (click)="viewDetails(poste.id)"
+            class="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+          >
+            Voir les détails →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredPostes.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun poste trouvé</h3>
+      <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
+    </div>
+  </div>
+</div>
