@@ -7,6 +7,9 @@ import { PosteListComponent } from './pages/postes/poste-list/poste-list.compone
 import { PosteDetailComponent } from './pages/postes/poste-detail/poste-detail.component';
 import { ContratListComponent } from './pages/contrats/contrat-list/contrat-list.component';
 import { ContratDetailComponent } from './pages/contrats/contrat-detail/contrat-detail.component';
+import { DocumentsRenouvelerComponent } from './pages/documents/documents-renouveler/documents-renouveler.component';
+import { DocumentsListComponent } from './pages/documents/documents-list/documents-list.component';
+import { MouvementListComponent } from './pages/mouvements/mouvement-list/mouvement-list.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -18,5 +21,8 @@ export const routes: Routes = [
   { path: 'postes', component: PosteListComponent, canActivate: [authGuard] },
   { path: 'postes/:id', component: PosteDetailComponent, canActivate: [authGuard] },
   { path: 'contrats', component: ContratListComponent, canActivate: [authGuard] },
-  { path: 'contrats/:id', component: ContratDetailComponent, canActivate: [authGuard] }
+  { path: 'contrats/:id', component: ContratDetailComponent, canActivate: [authGuard] },
+  { path: 'documents/renouveler', component: DocumentsRenouvelerComponent, canActivate: [authGuard] },
+  { path: 'documents', component: DocumentsListComponent, canActivate: [authGuard] },
+  { path: 'historique', component: MouvementListComponent, canActivate: [authGuard] }
 ];
