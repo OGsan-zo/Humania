@@ -104,6 +104,9 @@ CREATE TABLE ref_type_mouvement (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE ref_type_mouvement 
+ALTER COLUMN code TYPE VARCHAR(30);
+
 -- ====================================================
 -- 9. RÉFÉRENCE : STATUT DES DOCUMENTS
 -- ====================================================
