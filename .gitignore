@@ -16,3 +16,4 @@ frontend/dist/
 # Prompt 
 _docs/prompt/
 database/sql/origin/
+_docs/dev-back/ 
