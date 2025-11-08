@@ -17,3 +17,5 @@ frontend/dist/
 _docs/prompt/
 database/sql/origin/
 _docs/dev-back/ 
+_docs/dev-front/
+_docs/todo.md
