@@ -95,9 +95,10 @@ BEGIN
         FROM postes WHERE id = v_ancien_poste_id;
         
         -- Insérer dans l'historique
+        -- Insérer dans l'historique avec le type de mouvement approprié
         INSERT INTO historique_mouvements (
             employe_id,
-            type_mouvement,
+            type_mouvement_id,
             ancien_poste_id,
             ancien_departement_id,
             ancien_salaire,
@@ -109,9 +110,9 @@ BEGIN
         SELECT 
             NEW.employe_id,
             CASE 
-                WHEN NEW.salaire > v_ancien_salaire THEN 'promotion'
-                WHEN p_new.departement_id != v_ancien_departement_id THEN 'mutation'
-                ELSE 'changement_departement'
+                WHEN NEW.salaire > v_ancien_salaire THEN (SELECT id FROM ref_type_mouvement WHERE code = 'PROMOTION')
+                WHEN p_new.departement_id != v_ancien_departement_id THEN (SELECT id FROM ref_type_mouvement WHERE code = 'MUTATION')
+                ELSE (SELECT id FROM ref_type_mouvement WHERE code = 'CHANGEMENT_DEPARTEMENT')
             END,
             v_ancien_poste_id,
             v_ancien_departement_id,
@@ -151,9 +152,17 @@ CREATE TRIGGER trigger_historique_mouvement
 
 CREATE OR REPLACE FUNCTION update_document_status()
 RETURNS TRIGGER AS $$
+DECLARE
+    v_statut_valide_id INT;
+    v_statut_expire_id INT;
 BEGIN
-    IF NEW.date_expiration < CURRENT_DATE AND NEW.statut = 'valide' THEN
-        NEW.statut = 'expire';
+    -- Récupérer les IDs des statuts
+    SELECT id INTO v_statut_valide_id FROM ref_statut_document WHERE code = 'VALIDE';
+    SELECT id INTO v_statut_expire_id FROM ref_statut_document WHERE code = 'EXPIRE';
+    
+    -- Si le document est expiré et qu'il était valide, le marquer comme expiré
+    IF NEW.date_expiration < CURRENT_DATE AND NEW.statut_id = v_statut_valide_id THEN
+        NEW.statut_id = v_statut_expire_id;
     END IF;
     RETURN NEW;
 END;

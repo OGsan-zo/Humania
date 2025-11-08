@@ -45,7 +45,60 @@ INSERT INTO ref_banques (code, nom, sigle) VALUES
 ('MCB', 'Mauritius Commercial Bank', 'MCB');
 
 -- ====================================================
--- 4. TYPES DE DOCUMENTS RH
+-- 4. STATUT DES POSTES
+-- ====================================================
+
+INSERT INTO ref_statut_poste (code, libelle, description) VALUES
+('ACTIF', 'Actif', 'Poste actif et disponible'),
+('INACTIF', 'Inactif', 'Poste inactif ou supprimé');
+
+-- ====================================================
+-- 5. TYPE DE COMPTE BANCAIRE
+-- ====================================================
+
+INSERT INTO ref_type_compte (code, libelle, description) VALUES
+('COURANT', 'Compte courant', 'Compte bancaire courant'),
+('EPARGNE', 'Compte épargne', 'Compte d''épargne');
+
+-- ====================================================
+-- 6. STATUT DES COMPTES BANCAIRES
+-- ====================================================
+
+INSERT INTO ref_statut_compte (code, libelle, description) VALUES
+('ACTIF', 'Actif', 'Compte actif et opérationnel'),
+('INACTIF', 'Inactif', 'Compte inactif temporairement'),
+('CLOTURE', 'Clôturé', 'Compte clôturé définitivement');
+
+-- ====================================================
+-- 7. TYPE D'AFFECTATION
+-- ====================================================
+
+INSERT INTO ref_type_affectation (code, libelle, description) VALUES
+('PERMANENT', 'Permanent', 'Affectation permanente'),
+('INTERIM', 'Intérim', 'Affectation temporaire en intérim'),
+('MISSION', 'Mission', 'Affectation pour une mission spécifique');
+
+-- ====================================================
+-- 8. TYPE DE MOUVEMENT
+-- ====================================================
+
+INSERT INTO ref_type_mouvement (code, libelle, description) VALUES
+('PROMOTION', 'Promotion', 'Promotion vers un poste supérieur'),
+('MUTATION', 'Mutation', 'Mutation vers un autre département'),
+('RETROGRADATION', 'Rétrogradation', 'Rétrogradation vers un poste inférieur'),
+('CHANGEMENT_DEPARTEMENT', 'Changement de département', 'Changement de département sans changement de niveau');
+
+-- ====================================================
+-- 9. STATUT DES DOCUMENTS
+-- ====================================================
+
+INSERT INTO ref_statut_document (code, libelle, description) VALUES
+('VALIDE', 'Valide', 'Document valide et à jour'),
+('EXPIRE', 'Expiré', 'Document expiré'),
+('EN_ATTENTE', 'En attente', 'Document en attente de validation');
+
+-- ====================================================
+-- 10. TYPES DE DOCUMENTS RH
 -- ====================================================
 
 -- Insertion des types de documents courants
