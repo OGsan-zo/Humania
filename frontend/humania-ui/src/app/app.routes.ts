@@ -5,6 +5,8 @@ import { EmployeListComponent } from './pages/employes/employe-list/employe-list
 import { EmployeDetailComponent } from './pages/employes/employe-detail/employe-detail.component';
 import { PosteListComponent } from './pages/postes/poste-list/poste-list.component';
 import { PosteDetailComponent } from './pages/postes/poste-detail/poste-detail.component';
+import { ContratListComponent } from './pages/contrats/contrat-list/contrat-list.component';
+import { ContratDetailComponent } from './pages/contrats/contrat-detail/contrat-detail.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -14,5 +16,7 @@ export const routes: Routes = [
   { path: 'employes', component: EmployeListComponent, canActivate: [authGuard] },
   { path: 'employes/:id', component: EmployeDetailComponent, canActivate: [authGuard] },
   { path: 'postes', component: PosteListComponent, canActivate: [authGuard] },
-  { path: 'postes/:id', component: PosteDetailComponent, canActivate: [authGuard] }
+  { path: 'postes/:id', component: PosteDetailComponent, canActivate: [authGuard] },
+  { path: 'contrats', component: ContratListComponent, canActivate: [authGuard] },
+  { path: 'contrats/:id', component: ContratDetailComponent, canActivate: [authGuard] }
 ];
