@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header / Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <a routerLink="/dashboard" class="text-2xl font-bold text-indigo-600 hover:text-indigo-700">Humania</a>
+          <span class="text-gray-400">|</span>
+          <span class="text-gray-600">Gestion des Contrats</span>
+        </div>
+        <a routerLink="/dashboard" class="text-gray-600 hover:text-gray-900">
+          ← Retour au tableau de bord
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Liste des Contrats</h1>
+      <p class="mt-2 text-gray-600">Gérez et consultez tous les contrats de travail</p>
+    </div>
+
+    <!-- Alerte Renouvellements -->
+    <div *ngIf="countContratsARenouveler() > 0" class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-orange-700">
+            <span class="font-medium">{{ countContratsARenouveler() }} contrat(s)</span> arrivent à échéance dans les 30 prochains jours
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres de recherche</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Nom, matricule, numéro contrat..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type de contrat</label>
+          <select
+            [(ngModel)]="selectedType"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="Essai">Essai</option>
+            <option value="Stage">Stage</option>
+          </select>
+        </div>
+
+        <!-- Statut Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="selectedStatut"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="expire">Expiré</option>
+            <option value="suspendu">Suspendu</option>
+            <option value="resilie">Résilié</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <!-- Alerte Checkbox -->
+        <div class="flex items-center">
+          <input
+            id="alerte-only"
+            type="checkbox"
+            [(ngModel)]="showAlerteOnly"
+            (ngModelChange)="applyFilters()"
+            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label for="alerte-only" class="ml-2 block text-sm text-gray-700">
+            Afficher uniquement les contrats à renouveler (≤ 30 jours)
+          </label>
+        </div>
+
+        <!-- Reset Button -->
+        <button
+          (click)="resetFilters()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Réinitialiser les filtres
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="mb-4 text-sm text-gray-600">
+      <span class="font-semibold">{{ filteredContrats.length }}</span> contrat(s) trouvé(s)
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading && !errorMessage" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Numéro
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Employé
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Type
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date début
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date fin
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Salaire
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Statut
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let contrat of filteredContrats" 
+                [ngClass]="getAlerteClass(contrat.joursAvantExpiration)"
+                class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <span *ngIf="getAlerteIcon(contrat.joursAvantExpiration)" class="mr-2">
+                    {{ getAlerteIcon(contrat.joursAvantExpiration) }}
+                  </span>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ contrat.numeroContrat }}</div>
+                    <div *ngIf="contrat.nombreRenouvellements > 0" class="text-xs text-gray-500">
+                      {{ contrat.nombreRenouvellements }} renouvellement(s)
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ contrat.employePrenom }} {{ contrat.employeNom }}</div>
+                <div class="text-sm text-gray-500">{{ contrat.employeMatricule }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  {{ contrat.typeContrat }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ contrat.dateDebut | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  {{ contrat.dateFin ? (contrat.dateFin | date:'dd/MM/yyyy') : 'Indéterminée' }}
+                </div>
+                <div *ngIf="contrat.joursAvantExpiration !== undefined && contrat.joursAvantExpiration > 0" 
+                     class="text-xs font-medium"
+                     [ngClass]="contrat.joursAvantExpiration <= 7 ? 'text-red-600' : 'text-orange-600'">
+                  Dans {{ contrat.joursAvantExpiration }} jour(s)
+                </div>
+                <div *ngIf="contrat.joursAvantExpiration !== undefined && contrat.joursAvantExpiration < 0" 
+                     class="text-xs font-medium text-red-600">
+                  Expiré depuis {{ -contrat.joursAvantExpiration }} jour(s)
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ formatCurrency(contrat.salaireBase) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span [ngClass]="getStatutClass(contrat.statut)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ contrat.statut }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button
+                  (click)="viewDetails(contrat.id)"
+                  class="text-indigo-600 hover:text-indigo-900 font-medium"
+                >
+                  Voir détails →
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredContrats.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun contrat trouvé</h3>
+          <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
