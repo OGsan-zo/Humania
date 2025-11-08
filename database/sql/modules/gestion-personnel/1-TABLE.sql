@@ -21,7 +21,7 @@ CREATE TABLE postes (
     salaire_min DECIMAL(10,2),
     salaire_max DECIMAL(10,2),
     competences_requises TEXT,
-    statut VARCHAR(50) DEFAULT 'actif' CHECK (statut IN ('actif', 'inactif')),
+    statut_id INT REFERENCES ref_statut_poste(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -51,8 +51,8 @@ CREATE TABLE comptes_bancaires (
     banque_id INT REFERENCES ref_banques(id) ON DELETE SET NULL,
     rib VARCHAR(50),
     titulaire VARCHAR(150),
-    type_compte VARCHAR(50) DEFAULT 'courant' CHECK (type_compte IN ('courant', 'epargne')),
-    statut VARCHAR(50) DEFAULT 'actif' CHECK (statut IN ('actif', 'inactif', 'cloture')),
+    type_compte_id INT REFERENCES ref_type_compte(id) ON DELETE SET NULL,
+    statut_id INT REFERENCES ref_statut_compte(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -105,7 +105,7 @@ CREATE TABLE employes_postes (
     date_debut DATE NOT NULL DEFAULT CURRENT_DATE,
     date_fin DATE,
     salaire DECIMAL(10,2),
-    type_affectation VARCHAR(50) DEFAULT 'permanent' CHECK (type_affectation IN ('permanent', 'interim', 'mission')),
+    type_affectation_id INT REFERENCES ref_type_affectation(id) ON DELETE SET NULL,
     est_actuel BOOLEAN DEFAULT TRUE,
     motif_fin TEXT, -- démission, licenciement, fin de contrat, promotion, etc.
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -126,7 +126,7 @@ CREATE INDEX idx_employes_postes_actuel ON employes_postes(employe_id, est_actue
 CREATE TABLE historique_mouvements (
     id SERIAL PRIMARY KEY,
     employe_id INT REFERENCES employes(id) ON DELETE CASCADE,
-    type_mouvement VARCHAR(50) NOT NULL CHECK (type_mouvement IN ('promotion', 'mutation', 'retrogradation', 'changement_departement')),
+    type_mouvement_id INT REFERENCES ref_type_mouvement(id) ON DELETE SET NULL,
     
     -- Ancien poste
     ancien_poste_id INT REFERENCES postes(id) ON DELETE SET NULL,
@@ -168,14 +168,14 @@ CREATE TABLE employes_documents (
     date_emission DATE,
     date_expiration DATE,
     fichier_path VARCHAR(255),
-    statut VARCHAR(50) DEFAULT 'valide' CHECK (statut IN ('valide', 'expire', 'en_attente')),
+    statut_id INT REFERENCES ref_statut_document(id) ON DELETE SET NULL,
     remarques TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Index pour alertes de documents expirés
-CREATE INDEX idx_documents_expiration ON employes_documents(date_expiration, statut) WHERE statut = 'valide';
+CREATE INDEX idx_documents_expiration ON employes_documents(date_expiration, statut_id);
 
 -- ====================================================
 -- 8. PERSONNES À CONTACTER EN CAS D'URGENCE
