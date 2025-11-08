@@ -1,0 +1,268 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header / Navbar -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <a routerLink="/dashboard" class="text-2xl font-bold text-indigo-600 hover:text-indigo-700">Humania</a>
+          <span class="text-gray-400">|</span>
+          <span class="text-gray-600">Historique des Mouvements</span>
+        </div>
+        <a routerLink="/dashboard" class="text-gray-600 hover:text-gray-900">
+          ← Retour au tableau de bord
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Historique des Mouvements</h1>
+      <p class="mt-2 text-gray-600">Suivez les promotions, mutations et mobilités du personnel</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Mouvements</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ mouvements.length }}</p>
+          </div>
+          <div class="bg-indigo-100 rounded-full p-3">
+            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Promotions</p>
+            <p class="text-3xl font-bold text-green-600 mt-2">{{ countByType('Promotion') }}</p>
+          </div>
+          <span class="text-4xl">⬆️</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Mutations</p>
+            <p class="text-3xl font-bold text-blue-600 mt-2">{{ countByType('Mutation') }}</p>
+          </div>
+          <span class="text-4xl">🔄</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Embauches</p>
+            <p class="text-3xl font-bold text-indigo-600 mt-2">{{ countByType('Embauche') }}</p>
+          </div>
+          <span class="text-4xl">✅</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres de recherche</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+            placeholder="Nom, matricule, poste..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Type de mouvement</label>
+          <select
+            [(ngModel)]="selectedType"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="Promotion">Promotion</option>
+            <option value="Mutation">Mutation</option>
+            <option value="Embauche">Embauche</option>
+            <option value="Départ">Départ</option>
+            <option value="Mobilité">Mobilité</option>
+          </select>
+        </div>
+
+        <!-- Departement Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Département</label>
+          <select
+            [(ngModel)]="selectedDepartement"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Tous</option>
+            <option value="Informatique">Informatique</option>
+            <option value="Gestion de Projet">Gestion de Projet</option>
+            <option value="Finance">Finance</option>
+            <option value="Design">Design</option>
+            <option value="Ressources Humaines">Ressources Humaines</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+        <!-- Année Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Année</label>
+          <select
+            [(ngModel)]="selectedAnnee"
+            (ngModelChange)="applyFilters()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Toutes</option>
+            <option *ngFor="let year of getUniqueYears()" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="md:col-span-3 flex items-end justify-end">
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="mb-4 text-sm text-gray-600">
+      <span class="font-semibold">{{ filteredMouvements.length }}</span> mouvement(s) trouvé(s)
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Timeline -->
+    <div *ngIf="!isLoading && !errorMessage" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="space-y-6">
+        <div *ngFor="let mouvement of filteredMouvements; let i = index" class="relative">
+          <!-- Timeline line -->
+          <div *ngIf="i < filteredMouvements.length - 1" 
+               class="absolute left-10 top-24 bottom-0 w-0.5 bg-gray-300"></div>
+          
+          <div class="flex items-start space-x-4">
+            <!-- Photo & Icon -->
+            <div class="flex-shrink-0 relative">
+              <img 
+                [src]="mouvement.employePhoto || 'https://ui-avatars.com/api/?name=' + mouvement.employePrenom + '+' + mouvement.employeNom + '&size=200'" 
+                [alt]="mouvement.employePrenom + ' ' + mouvement.employeNom"
+                class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md"
+              />
+              <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-gray-200">
+                <span class="text-2xl">{{ getTypeIcon(mouvement.typeMouvement) }}</span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 border-2 rounded-lg p-6" [ngClass]="getTypeClass(mouvement.typeMouvement)">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <button 
+                    (click)="viewEmployeDetails(mouvement.employeId)"
+                    class="text-xl font-bold hover:underline">
+                    {{ mouvement.employePrenom }} {{ mouvement.employeNom }}
+                  </button>
+                  <p class="text-sm opacity-75 mt-1">{{ mouvement.employeMatricule }}</p>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white shadow-sm">
+                    {{ mouvement.typeMouvement }}
+                  </span>
+                  <p class="text-sm mt-2 opacity-75">{{ mouvement.dateMouvement | date:'dd/MM/yyyy' }}</p>
+                </div>
+              </div>
+
+              <!-- Mouvement Details -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <!-- Ancien (si existe) -->
+                <div *ngIf="mouvement.ancienPoste" class="bg-white bg-opacity-50 rounded-lg p-4">
+                  <p class="text-xs font-semibold uppercase mb-2 opacity-75">Ancien poste</p>
+                  <p class="font-semibold text-lg">{{ mouvement.ancienPoste }}</p>
+                  <p class="text-sm mt-1">{{ mouvement.ancienDepartement }}</p>
+                  <p class="text-sm font-semibold mt-2">{{ formatCurrency(mouvement.ancienSalaire) }}</p>
+                </div>
+
+                <!-- Nouveau -->
+                <div class="bg-white bg-opacity-50 rounded-lg p-4">
+                  <p class="text-xs font-semibold uppercase mb-2 opacity-75">
+                    {{ mouvement.ancienPoste ? 'Nouveau poste' : 'Poste' }}
+                  </p>
+                  <p class="font-semibold text-lg">{{ mouvement.nouveauPoste }}</p>
+                  <p class="text-sm mt-1">{{ mouvement.nouveauDepartement }}</p>
+                  <p class="text-sm font-semibold mt-2">{{ formatCurrency(mouvement.nouveauSalaire) }}</p>
+                </div>
+              </div>
+
+              <!-- Évolution salariale -->
+              <div *ngIf="mouvement.ancienSalaire && mouvement.nouveauSalaire" 
+                   class="bg-white bg-opacity-50 rounded-lg p-3 mb-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium">Évolution salariale :</span>
+                  <span class="text-lg font-bold text-green-700">
+                    + {{ formatCurrency((mouvement.nouveauSalaire || 0) - (mouvement.ancienSalaire || 0)) }}
+                    ({{ (((mouvement.nouveauSalaire || 0) - (mouvement.ancienSalaire || 0)) / (mouvement.ancienSalaire || 1) * 100).toFixed(1) }}%)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Motif -->
+              <div *ngIf="mouvement.motif" class="bg-white bg-opacity-50 rounded-lg p-3 mb-4">
+                <p class="text-xs font-semibold uppercase mb-1 opacity-75">Motif</p>
+                <p class="text-sm italic">{{ mouvement.motif }}</p>
+              </div>
+
+              <!-- Validé par -->
+              <div *ngIf="mouvement.validePar" class="flex items-center text-sm">
+                <svg class="w-4 h-4 mr-2 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="opacity-75">Validé par : <span class="font-semibold">{{ mouvement.validePar }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredMouvements.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun mouvement trouvé</h3>
+        <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche</p>
+      </div>
+    </div>
+  </div>
+</div>
