@@ -10,6 +10,8 @@ import { ContratDetailComponent } from './pages/contrats/contrat-detail/contrat-
 import { DocumentsRenouvelerComponent } from './pages/documents/documents-renouveler/documents-renouveler.component';
 import { DocumentsListComponent } from './pages/documents/documents-list/documents-list.component';
 import { MouvementListComponent } from './pages/mouvements/mouvement-list/mouvement-list.component';
+import { DepartementListComponent } from './pages/departements/departement-list/departement-list.component';
+import { DepartementDetailComponent } from './pages/departements/departement-detail/departement-detail.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -24,5 +26,7 @@ export const routes: Routes = [
   { path: 'contrats/:id', component: ContratDetailComponent, canActivate: [authGuard] },
   { path: 'documents/renouveler', component: DocumentsRenouvelerComponent, canActivate: [authGuard] },
   { path: 'documents', component: DocumentsListComponent, canActivate: [authGuard] },
-  { path: 'historique', component: MouvementListComponent, canActivate: [authGuard] }
+  { path: 'historique', component: MouvementListComponent, canActivate: [authGuard] },
+  { path: 'departements', component: DepartementListComponent, canActivate: [authGuard] },
+  { path: 'departements/:id', component: DepartementDetailComponent, canActivate: [authGuard] }
 ];
